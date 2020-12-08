@@ -7,13 +7,14 @@
                 <div class="h3 text-muted">
                      <!-- username автора -->
                      {{ post_author.username }}
+                     {% include 'includes/follow_unfollow.html' %}
                 </div>
         </div>
         <ul class="list-group list-group-flush">
                 <li class="list-group-item">
                         <div class="h6 text-muted">
-                        Подписчиков: XXX <br />
-                        Подписан: XXX
+                        Подписчиков: {{roster_followings}} <br />
+                        Подписан: {{roster_followers}}
                         </div>
                 </li>
                 <li class="list-group-item">

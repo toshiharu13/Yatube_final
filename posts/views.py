@@ -57,12 +57,21 @@ def profile(request, username):
     paginator_profile = Paginator(user_posts, 10)
     page_num_profile = request.GET.get('page')
     page_profile = paginator_profile.get_page(page_num_profile)
+    # запрашиваем является ли текущий пользователь подписчиком автора
+    following = Follow.objects.filter(user=request.user, author=profile_user)
+    # считаем количество подписчиков на автора
+    roster_followings = Follow.objects.filter(author=profile_user).count
+    # считаем количество подписок автора
+    roster_followers = Follow.objects.filter(user=profile_user). count
     context = {
         'page': page_profile,
         'paginator': paginator_profile,
         'user1': profile_user,
         'post': user_posts,
         'post_author': profile_user,
+        'following': following,
+        'roster_followings': roster_followings,
+        'roster_followers': roster_followers,
     }
     return render(request, 'profile.html', context)
 
@@ -151,12 +160,18 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    # ...
-    pass
+    Follow.objects.create(
+        author=User.objects.get(username=username),
+        user=User.objects.get(username=request.user),
+    )
+    return redirect('profile', username=username)
 
 
 @login_required
 def profile_unfollow(request, username):
-    # ...
-    pass
+    Follow.objects.get(
+        author=User.objects.get(username=username),
+        user=User.objects.get(username=request.user),
+    ).delete()
+    return redirect('profile', username=username)
 
