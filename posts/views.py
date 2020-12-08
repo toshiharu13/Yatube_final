@@ -5,7 +5,7 @@ from django.views.decorators.cache import cache_page
 
 
 from posts.forms import PostForm, PostComment
-from .models import Group, Post, User
+from .models import Group, Post, User, Follow
 
 
 def index(request):
@@ -129,4 +129,34 @@ def add_comment(request, username, post_id):
         form.instance.post = post
         form.save()
         return redirect('post', username, post_id)
+
+
+@login_required
+def follow_index(request):
+    # информация о текущем пользователе доступна в переменной request.user
+    user_follower = request.user
+    roster_of_posts = Post.objects.filter(author__following__user=user_follower)
+    roster_of_authors = User.objects.filter(following__user=user_follower)
+    paginator_profile = Paginator(roster_of_posts, 10)
+    page_num_profile = request.GET.get('page')
+    page_profile = paginator_profile.get_page(page_num_profile)
+    context = {
+        'page': page_profile,
+        'paginator': paginator_profile,
+        'user': user_follower,
+        'post': roster_of_posts,
+        'post_author': roster_of_authors,
+    }
+    return render(request, "follow.html",)
+
+@login_required
+def profile_follow(request, username):
+    # ...
+    pass
+
+
+@login_required
+def profile_unfollow(request, username):
+    # ...
+    pass
 
