@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}сообщение пользователя {% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+<main role="main" class="container">
+    <div class="row">
+            <div class="col-md-3 mb-3 mt-1">
+            {% include 'includes/user_card.html' %}
+        </div>
+
+        <div class="col-md-9">
+
+            <!-- Пост -->
+           {% include 'includes/user_post_card.html' %}
+     </div>
+        {% include 'includes/comments.html' with comments=comments %}
+    </div>
+</main>
+{% endblock %}

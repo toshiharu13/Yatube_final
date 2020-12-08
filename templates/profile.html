@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}страница профиля{% endblock %}
+{% block header %}
+<main role="main" class="container">
+    <div class="row">
+            <div class="col-md-3 mb-3 mt-1">
+                   {% include 'includes/user_card.html' %}
+            </div>
+
+
+{% endblock %}
+{% block content %}
+
+        <div class="col-md-9">
+                {%for post in page.object_list%}
+                    {% include "includes/post_item.html" with post=post %}
+                {% endfor %}
+
+
+     </div>
+    </div>
+</main>
+{% endblock %}
