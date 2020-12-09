@@ -281,10 +281,11 @@ class TaskPagesTests(TestCase):
 
 
     def test_make_comments_authorized(self):
-        """Только авторизированный пользователь может комментировать посты
+        """Только авторизированный пользователь может комментировать посты"""
         comments_count = Comment.objects.count()
-        response = self.authorized_client.get(reverse('post'))
-        form_data = {'text': 'тестатест'}"""
+        response = self.authorized_client.get(
+            reverse('post', kwargs={'username': self.user, 'post_id': self.testpost.id}))
+        form_data = {'text': 'тестатест'}
 
 
         pass
