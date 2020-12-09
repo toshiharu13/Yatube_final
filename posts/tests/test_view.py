@@ -282,10 +282,26 @@ class TaskPagesTests(TestCase):
 
     def test_make_comments_authorized(self):
         """Только авторизированный пользователь может комментировать посты"""
+        # check value of comments
         comments_count = Comment.objects.count()
-        response = self.authorized_client.get(
-            reverse('post', kwargs={'username': self.user, 'post_id': self.testpost.id}))
-        form_data = {'text': 'тестатест'}
+        form_data = {
+            'text': 'test_text',
+        }
+        # post response from guest
+        self.guest_client.post(reverse('add_comment', kwargs={
+            'username': self.testpost.author.username, 'post_id': self.testpost.id
+        }), data=form_data, follow=True, )
+        self.assertEqual(Comment.objects.count(), comments_count)
+        # post from authorized user
+        self.authorized_client.post(reverse('add_comment', kwargs={
+                'username': self.testpost.author.username, 'post_id': self.testpost.id
+            }), data=form_data, follow=True,)
+        # comments_count2 = Comment.objects.count()
+        self.assertEqual(Comment.objects.count(), comments_count + 1)
+        post = Comment.objects.filter(text='test_text').exists
+        self.assertTrue(post)
+
+
 
 
         pass

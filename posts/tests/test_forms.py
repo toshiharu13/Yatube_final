@@ -58,8 +58,6 @@ class PostsCreateFormTests(TestCase):
         )
         self.assertRedirects(response, reverse('index'))
         self.assertEqual(Post.objects.count(), post_count + 1)
-        # instead of 'get' use 'first', can't use object 'Post',
-        # a have not create it
         post = Post.objects.first()
         self.assertEqual(post.text, form_data['text'])
 
