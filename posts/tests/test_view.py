@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 from django import forms
 from django.core.cache import cache
 
-from posts.models import Post, Group, User
+from posts.models import Post, Group, User, Follow
 
 
 
@@ -227,12 +227,37 @@ class TaskPagesTests(TestCase):
         self.assertNotEqual(response.content, content)
 
     def test_follow_author(self):
-        pass
+        """проверка включения подписки авторизованным пользователем"""
+        # create new following
+        self.authorized_client.get(reverse(
+            'profile_follow', kwargs={'username': 'testa'})
+        )
+        # checking for a new data in Follow model
+        folowing_author = Follow.objects.filter(
+            author__username='testa').exists()
+        self.assertTrue(folowing_author)
 
     def test_unfollow_outhor(self):
+        """проверка отписки авторизованного пользователя"""
+        # create new following
+        self.authorized_client.get(reverse(
+            'profile_follow', kwargs={'username': 'testa'})
+        )
+        # checking for a new data in Follow model
+        following_author = Follow.objects.filter(
+            author__username='testa').exists()
+        self.assertTrue(following_author)
+        # delete following
+        self.authorized_client.get(reverse(
+            'profile_unfollow', kwargs={'username': 'testa'}))
+        # checking for a result
+        unfollowing_author = Follow.objects.filter(
+            author__username='testa').exists()
+        self.assertFalse(unfollowing_author)
         pass
 
     def test_new_post_in_follower_list(self):
+        """после добавления подписки, автор появится в ленте"""
         pass
 
 
