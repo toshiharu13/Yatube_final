@@ -143,20 +143,18 @@ def add_comment(request, username, post_id):
 @login_required
 def follow_index(request):
     # информация о текущем пользователе доступна в переменной request.user
-    user_follower = request.user
-    roster_of_posts = Post.objects.filter(author__following__user=user_follower)
-    roster_of_authors = User.objects.filter(following__user=user_follower)
-    paginator_profile = Paginator(roster_of_posts, 10)
-    page_num_profile = request.GET.get('page')
-    page_profile = paginator_profile.get_page(page_num_profile)
+    roster_of_posts = Post.objects.filter(author__following__user=request.user)
+    roster_of_authors = User.objects.filter(following__user=request.user)
+    paginator_fol = Paginator(roster_of_posts, 10)
+    page_num_fol = request.GET.get('page')
+    page = paginator_fol.get_page(page_num_fol)
     context = {
-        'page': page_profile,
-        'paginator': paginator_profile,
-        'user': user_follower,
-        'post': roster_of_posts,
-        'post_author': roster_of_authors,
+        'page': page,
+        'paginator': paginator_fol,
+        'user': request.user,
+        'post_author': roster_of_posts,
     }
-    return render(request, "follow.html",)
+    return render(request, "follow.html", context)
 
 @login_required
 def profile_follow(request, username):
@@ -169,7 +167,7 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    Follow.objects.get(
+    Follow.objects.filter(
         author=User.objects.get(username=username),
         user=User.objects.get(username=request.user),
     ).delete()

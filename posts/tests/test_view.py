@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 from django import forms
 from django.core.cache import cache
 
-from posts.models import Post, Group, User, Follow
+from posts.models import Post, Group, User, Follow, Comment
 
 
 
@@ -36,7 +36,11 @@ class TaskPagesTests(TestCase):
         # cache.clear()
         # create authorised client
         User = get_user_model()
-        self.user = User.objects.create_user(username='testuser')
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='testuser@gmail.com',
+            password='12345678',
+        )
         self.authorized_client = Client()
         self.guest_client = Client()
         # use user for authorize&make posts
@@ -257,11 +261,32 @@ class TaskPagesTests(TestCase):
         pass
 
     def test_new_post_in_follower_list(self):
-        """после добавления подписки, автор появится в ленте"""
-        pass
+        """после добавления подписки, посты автора появятся в ленте"""
+        # making response to follow_index
+        response = self.authorized_client.get(reverse('follow_index'))
+        content = response.content
+        # create new follow
+        self.authorized_client.get(reverse(
+            'profile_follow', kwargs={'username': 'testa'})
+        )
+        # check for update in content
+        cache.clear()
+        response = self.authorized_client.get(reverse('follow_index'))
+        self.assertNotEqual(response.content, content,
+                            'Ошибка отображения, контент должен изменится')
+        # check for present of post of author
+        text_upd_post = response.context.get('page')[0].text
+        self.assertEqual(text_upd_post, 'ТестаПост',
+                         f'Ошибка отображения,{text_upd_post} должен появится')
 
 
     def test_make_comments_authorized(self):
+        """Только авторизированный пользователь может комментировать посты
+        comments_count = Comment.objects.count()
+        response = self.authorized_client.get(reverse('post'))
+        form_data = {'text': 'тестатест'}"""
+
+
         pass
 
 
