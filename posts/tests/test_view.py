@@ -211,25 +211,33 @@ class TaskPagesTests(TestCase):
         """изменение отображение контекста при работе с кэшем."""
         # get fields in context
         client = self.authorized_client
-        response = client.get(reverse('index')).context.get('posts')[0].text
-        #field_text = response.context.get('posts')[0].text
+        response = client.get(reverse('index'))
+        content = response.content
         # checking fields for equal
-        self.assertEqual(response, 'ТестаПост')
-        # adding post
-        Post.objects.create(
-            text='ТестаПост2',
-            author=TaskPagesTests.user,
-            group=TaskPagesTests.group,)
+        self.assertEqual(response.content, content)
+        # deleting all
+        Post.objects.all().delete()
         # checking fields for equal (cache is working)
-        response = client.get(reverse('index')).context.get('posts')[0].text
-        #field_text = response.context.get('posts')[0].text
-        self.assertEqual(response, 'ТестаПост')
+        response = client.get(reverse('index'))
+        self.assertEqual(response.content, content)
         # cache.clear
         cache.clear()
         # checking fields for not equal (cache is clearing)
-        response = client.get(reverse('index')).context.get('posts')[0].text
-        #field_text = response.context.get('posts')[0].text
-        self.assertNotEqual(response, 'ТестаПост')
+        response = client.get(reverse('index'))
+        self.assertNotEqual(response.content, content)
+
+    def test_follow_author(self):
+        pass
+
+    def test_unfollow_outhor(self):
+        pass
+
+    def test_new_post_in_follower_list(self):
+        pass
+
+
+    def test_make_comments_authorized(self):
+        pass
 
 
 
