@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_page
 
 
-from posts.forms import PostForm, PostComment
+from posts.forms import PostForm, CommentForm
 from .models import Group, Post, User, Follow
 
 
@@ -58,11 +58,14 @@ def profile(request, username):
     page_num_profile = request.GET.get('page')
     page_profile = paginator_profile.get_page(page_num_profile)
     # запрашиваем является ли текущий пользователь подписчиком автора
-    following = Follow.objects.filter(user=request.user, author=profile_user)
+    if request.user.is_authenticated:
+        following = Follow.objects.filter(user=request.user, author=profile_user).exists()
+    else:
+        following = False
     # считаем количество подписчиков на автора
     roster_followings = Follow.objects.filter(author=profile_user).count
     # считаем количество подписок автора
-    roster_followers = Follow.objects.filter(user=profile_user). count
+    roster_followers = Follow.objects.filter(user=profile_user).count
     context = {
         'page': page_profile,
         'paginator': paginator_profile,
@@ -83,7 +86,7 @@ def post_view(request, username, post_id):
     user = get_object_or_404(User, username=username)
     comments = one_post.comments.all()
     count = Post.objects.filter(author=user).count()
-    form = PostComment()
+    form = CommentForm()
     context = {
         'post': one_post,
         'post_author': one_post.author,
@@ -114,6 +117,7 @@ def post_edit(request, username, post_id):
     return render(request, 'new.html', context)
 
 
+
 def page_not_found(request, exception=None):
     # Переменная exception содержит отладочную информацию,
     # выводить её в шаблон пользователской страницы 404 мы не станем
@@ -132,12 +136,12 @@ def server_error(request):
 @login_required
 def add_comment(request, username, post_id):
     post = get_object_or_404(Post, id=post_id, author__username=username)
-    form = PostComment(request.POST or None)
+    form = CommentForm(request.POST or None)
     if form.is_valid():
         form.instance.author = request.user
         form.instance.post = post
         form.save()
-        return redirect('post', username, post_id)
+    return redirect('post', username, post_id)
 
 
 @login_required
@@ -158,11 +162,14 @@ def follow_index(request):
 
 @login_required
 def profile_follow(request, username):
-    if username != request.user.username:
-        Follow.objects.create(
-            author=User.objects.get(username=username),
-            user=User.objects.get(username=request.user),
-        )
+    author = get_object_or_404(User, username=username)
+    if author == request.user or Follow.objects.filter(
+            author=author, user=request.user).exists():
+        return redirect('profile', username=username)
+    Follow.objects.create(
+        author=User.objects.get(username=username),
+        user=User.objects.get(username=request.user),
+    )
     return redirect('profile', username=username)
 
 
