@@ -1,15 +1,14 @@
 import shutil
 import tempfile
 
-
-from django.urls import reverse
-from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase
+from django.urls import reverse
 
 from posts.forms import PostForm
-from posts.models import Post, Group
+from posts.models import Group, Post
 
 
 class PostsCreateFormTests(TestCase):
@@ -44,7 +43,8 @@ class PostsCreateFormTests(TestCase):
         super().tearDownClass()
 
     def test_create_post(self):
-        """после создания поста количество записей увеличилось, записанный пост соответствует переданному"""
+        """после создания поста количество записей увеличилось,
+         записанный пост соответствует переданному"""
         post_count = Post.objects.count()
 
         form_data = {
@@ -113,4 +113,3 @@ class PostsCreateFormTests(TestCase):
             follow=True
         )
         self.assertEqual(Post.objects.count(), posts_count + 1)
-

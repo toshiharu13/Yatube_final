@@ -1,13 +1,12 @@
+from django import forms
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase, modify_settings
-from django.urls import reverse
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
-from django import forms
 from django.core.cache import cache
+from django.test import Client, TestCase, modify_settings
+from django.urls import reverse
 
-from posts.models import Post, Group, User, Follow, Comment
-
+from posts.models import Comment, Follow, Group, Post, User
 
 
 class TaskPagesTests(TestCase):
@@ -258,7 +257,6 @@ class TaskPagesTests(TestCase):
         unfollowing_author = Follow.objects.filter(
             author__username='testa').exists()
         self.assertFalse(unfollowing_author)
-        pass
 
     def test_new_post_in_follower_list(self):
         """после добавления подписки, посты автора появятся в ленте"""
@@ -278,7 +276,6 @@ class TaskPagesTests(TestCase):
         text_upd_post = response.context.get('page')[0].text
         self.assertEqual(text_upd_post, 'ТестаПост',
                          f'Ошибка отображения,{text_upd_post} должен появится')
-
 
     def test_make_comments_authorized(self):
         """Только авторизированный пользователь может комментировать посты"""
@@ -300,11 +297,3 @@ class TaskPagesTests(TestCase):
         self.assertEqual(Comment.objects.count(), comments_count + 1)
         post = Comment.objects.filter(text='test_text').exists
         self.assertTrue(post)
-
-
-
-
-        pass
-
-
-

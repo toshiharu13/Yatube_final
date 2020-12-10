@@ -1,8 +1,8 @@
-from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.sites.models import Site
+from django.test import Client, TestCase
+from django.urls import reverse
 
 from posts.models import Group, Post, User
 
@@ -87,7 +87,8 @@ class StaticURLTests(TestCase):
                 self.assertEqual(response.status_code, 200, pages)
 
     def test_urls_for_autorised(self):
-        """Соответствие url-а вызванному шаблону для авторизованного пользователя"""
+        """Соответствие url-а вызванному шаблону
+        для авторизованного пользователя"""
         templates_url_names = {
             'index.html': reverse('index'),
             'group.html': (
@@ -125,7 +126,6 @@ class StaticURLTests(TestCase):
             with self.subTest(reverse_name=reverse_name):
                 response = self.guest_client.get(reverse_name)
                 self.assertTemplateUsed(response, template)
-                #self.assertTemplateNotUsed(response, template)
 
     def test_urls_new_for_guest(self):
         """Соответствие url-а вызванному шаблону New для гостя"""
@@ -155,7 +155,8 @@ class StaticURLTests(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_editpost_list_url_redirect_anonymous(self):
-        """Страница /<username>/<post_id>/edit/ перенаправляет анонимного пользователя."""
+        """Страница /<username>/<post_id>/edit/
+        перенаправляет анонимного пользователя."""
         name = reverse('post_edit', kwargs={
             'username': 'testa', 'post_id': self.group.id
         })
