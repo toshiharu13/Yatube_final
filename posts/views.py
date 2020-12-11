@@ -59,13 +59,15 @@ def profile(request, username):
     page_profile = paginator_profile.get_page(page_num_profile)
     # запрашиваем является ли текущий пользователь подписчиком автора
     if request.user.is_authenticated:
-        following = Follow.objects.filter(user=request.user, author=profile_user).exists()
+        following = Follow.objects.filter(
+            user=request.user, author=profile_user
+        ).exists()
     else:
         following = False
     # считаем количество подписчиков на автора
-    roster_followings = Follow.objects.filter(author=profile_user).count
+    roster_followings = Follow.objects.filter(author=profile_user).count()
     # считаем количество подписок автора
-    roster_followers = Follow.objects.filter(user=profile_user).count
+    roster_followers = Follow.objects.filter(user=profile_user).count()
     context = {
         'page': page_profile,
         'paginator': paginator_profile,
@@ -117,7 +119,6 @@ def post_edit(request, username, post_id):
     return render(request, 'new.html', context)
 
 
-
 def page_not_found(request, exception=None):
     # Переменная exception содержит отладочную информацию,
     # выводить её в шаблон пользователской страницы 404 мы не станем
@@ -160,6 +161,7 @@ def follow_index(request):
     }
     return render(request, "follow.html", context)
 
+
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
@@ -180,4 +182,3 @@ def profile_unfollow(request, username):
         user=User.objects.get(username=request.user),
     ).delete()
     return redirect('profile', username=username)
-
