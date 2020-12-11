@@ -152,6 +152,8 @@ CACHES = {
     }
 }
 
+PAGINATOR_PAGE_SIZE = 10
+
 '''
 #  подключаем движок filebased.EmailBackend
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"

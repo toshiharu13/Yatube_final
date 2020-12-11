@@ -7,10 +7,12 @@ from posts.forms import CommentForm, PostForm
 
 from .models import Follow, Group, Post, User
 
+from yatube import settings
+
 
 def index(request):
     posts = Post.objects.order_by('-pub_date').all()
-    paginator = Paginator(posts, 10)
+    paginator = Paginator(posts, settings.PAGINATOR_PAGE_SIZE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(
@@ -23,7 +25,7 @@ def index(request):
 def group_posts(request, slug):
     key_group = get_object_or_404(Group, slug=slug)
     posts = key_group.posts.all()
-    paginator = Paginator(posts, 10)
+    paginator = Paginator(posts, settings.PAGINATOR_PAGE_SIZE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
@@ -54,7 +56,7 @@ def new_post(request):
 def profile(request, username):
     profile_user = get_object_or_404(User, username=username)
     user_posts = profile_user.posts.all()
-    paginator_profile = Paginator(user_posts, 10)
+    paginator_profile = Paginator(user_posts, settings.PAGINATOR_PAGE_SIZE)
     page_num_profile = request.GET.get('page')
     page_profile = paginator_profile.get_page(page_num_profile)
     # запрашиваем является ли текущий пользователь подписчиком автора
@@ -149,8 +151,7 @@ def add_comment(request, username, post_id):
 def follow_index(request):
     # информация о текущем пользователе доступна в переменной request.user
     roster_of_posts = Post.objects.filter(author__following__user=request.user)
-    roster_of_authors = User.objects.filter(following__user=request.user)
-    paginator_fol = Paginator(roster_of_posts, 10)
+    paginator_fol = Paginator(roster_of_posts, settings.PAGINATOR_PAGE_SIZE)
     page_num_fol = request.GET.get('page')
     page = paginator_fol.get_page(page_num_fol)
     context = {
@@ -165,12 +166,12 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    if author == request.user or Follow.objects.filter(
-            author=author, user=request.user).exists():
+    if author == request.user:
         return redirect('profile', username=username)
-    Follow.objects.create(
-        author=User.objects.get(username=username),
-        user=User.objects.get(username=request.user),
+    # this method is more concise, thanks!
+    Follow.objects.get_or_create(
+        author=get_object_or_404(User, username=username),
+        user=request.user,
     )
     return redirect('profile', username=username)
 
@@ -178,7 +179,7 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     Follow.objects.filter(
-        author=User.objects.get(username=username),
-        user=User.objects.get(username=request.user),
+        author=get_object_or_404(User, username=username),
+        user=request.user,
     ).delete()
     return redirect('profile', username=username)
