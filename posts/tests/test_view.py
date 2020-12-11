@@ -35,15 +35,17 @@ class TaskPagesTests(TestCase):
         # cache.clear()
         # create authorised client
         User = get_user_model()
-        self.user = User.objects.create_user(
+        self.user1 = User.objects.create_user(
             username='testuser',
             email='testuser@gmail.com',
             password='12345678',
         )
         self.authorized_client = Client()
         self.guest_client = Client()
+        self.author_client = Client()
         # use user for authorize&make posts
-        self.authorized_client.force_login(TaskPagesTests.user)
+        self.authorized_client.force_login(self.user1)
+        self.author_client.force_login(TaskPagesTests.user)
         self.testpost = Post.objects.get(text='ТестаПост')
         # create site for flatpages
         site1 = Site(pk=1, domain='localhost:8000', name='localhost:8000')
@@ -166,7 +168,7 @@ class TaskPagesTests(TestCase):
     def test_edit_page_show_correct_context(self):
         """Шаблон new(edit) сформирован с правильным контекстом."""
         postid = self.testpost.id
-        response = self.authorized_client.get(
+        response = self.author_client.get(
             reverse('post_edit', kwargs={
                 'username': 'testa', 'post_id': postid})
         )
