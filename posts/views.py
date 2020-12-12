@@ -11,8 +11,7 @@ from yatube import settings
 
 
 def index(request):
-    # I can't think of one, can you give me a hint?
-    posts = Post.objects.all()
+    posts = Post.objects.select_related('group').all()
     paginator = Paginator(posts, settings.PAGINATOR_PAGE_SIZE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
